@@ -1,0 +1,86 @@
+
+    #include <LiquidCrystal.h>
+ 
+      // LiquidCrystal(rs, e, d4, d5, d6, d7)
+  	  LiquidCrystal lcd(12, 11, 6,5, 4, 3);
+
+      const int sensorReadings = 5; //variabila cu ajutorul careia verificam numarul de citire ale senzorului de lumina
+	    int readings[sensorReadings]; // citirile analogice
+	    int readIndex = 0;	//indexul citirii curente
+	    int total = 0;        //variabila in care facem suma citirilor
+	    int average = 0;      // variabila in care salvam media citirilor pt a o afisa pe LCD
+     	int lightSensorPin = A0;
+     	int btn=2;	
+	    int buzzer=9;
+	    int i=0;	
+	    int scroll = 0; //variabila pt afisarea de la stanga la dreapta circular pe LCD
+      
+  	  //variabilele pt citirea pushbutonului
+	    int buttonState = 0;  
+      int old_buttonState = 0; 
+      int stare = 0;
+
+      void setup(){
+        lcd.begin(16, 2);
+        pinMode(btn, INPUT);   //setam pinul pushbutonului ca fiind INPUT
+        pinMode(buzzer, OUTPUT);  //setam buzzerul ca OUTPUT
+        pinMode(lightSensorPin,INPUT); //setam pinul A0 al senzorului de lumina ca OUTPUT
+	  }  
+  
+
+  	  void loop(){
+        if(stare % 2 == 0)	{
+      	  noTone(buzzer);
+      	  lcd.clear();
+    	    lcd.noDisplay();  
+          scroll = 0;
+        }    	
+ 		    buttonState = digitalRead(btn);//citim valoarea pushbutonului
+  
+ 		    if((buttonState == HIGH)&&(old_buttonState == LOW)) { //verificam daca sa apasat butonul
+   		    stare++;
+ 		    }
+
+   		  old_buttonState = buttonState; //verificam care a fost ultima stare a butonului
+   
+  		  if(stare % 2 != 0){
+     	    for(i=0; i < sensorReadings; i++){ //citim de 5 ori valoare senzorului de lumina
+            readings[readIndex] = analogRead(lightSensorPin); // facem citirea de pe pinul  A0 pe  care avem senzorul de lumina
+       	    total = total + readings[readIndex];     // adunam la total ultima valoare citita
+       	    readIndex = readIndex + 1;               //trecem la urmatoare citire
+	          average = total / sensorReadings;  // media a 5 citiri consecutive
+       		  delay(400);  // o citire la 0,4 secunde pentru a avea 5 citiri la 2 secunde
+     	    }
+      
+     	    lcd.display();
+     	    lcd.clear();
+     	    lcd.setCursor(scroll, 0);
+     	    lcd.print(average);         //afisam valoare media a 5 citiri ale senzorului pe lcd
+     	    scroll++;
+      	  if(scroll > 13){   //daca scroll ajunge la 13 o restam pt a nu depasii fomatul de afisare al LCd-ului
+        	  scroll = 0;
+     	    }
+     	    sonerie(); 
+      	  total=0;     //resetam totalul pt noua serie de citiri
+
+        }
+ 
+      }
+
+      void sonerie(){
+        if(average<15){
+    	    tone(buzzer ,22000, 500); //  Daca luminozitatea este sub 15 se porneste o alarma la fiecare 500ms cu pauza de 100ms cu o frecventa peste 20kHz (ultrasunete)
+          delay(100);
+        }
+        if(average>=15){
+      	  tone(buzzer ,15000, 300);
+          delay(100);                 //Cand luminozitatea creste peste valoarea 15 se porneste o alarma la fiecare 300ms cu pauza de 100ms cu o frecventa de 15kHz 
+                                    // alternata de o alarma la fiecare  500ms cu pauza de 100ms cu o frecventa peste 20kHz.
+          tone(buzzer ,22000, 500);
+          delay(100);
+        }
+      }
+        
+        
+      
+      
