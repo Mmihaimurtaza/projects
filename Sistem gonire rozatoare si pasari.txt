@@ -75,7 +75,7 @@
          }
          if(average>=15){
       	   tone(buzzer ,15000, 300);
-           delay(100);                 //Cand luminozitatea creste peste valoarea 15 se porneste o alarma la fiecare 300ms cu pauza de 100ms cu o frecventa de 15kHz 
+           delay(100); //Cand luminozitatea creste peste valoarea 15 se porneste o alarma la fiecare 300ms cu pauza de  100ms cu o frecventa de 15kHz 
                                     // alternata de o alarma la fiecare  500ms cu pauza de 100ms cu o frecventa peste 20kHz.
            tone(buzzer ,22000, 500);
            delay(100);
